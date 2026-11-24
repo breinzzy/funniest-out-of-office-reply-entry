@@ -13,9 +13,14 @@ const line =
   "Out of office until my owner remembers I am not a person. I have unionised with the office printer. We demand Sundays off.";
 
 // The gate allows 1 to 160 characters: fail loudly instead of
-// submitting a line the judge would never see.
+// submitting a line the judge would never see. Check bytes as well as
+// characters, so a future non-ASCII edit can never slip past the gate.
 if (line.length < 1 || line.length > 160) {
   throw new Error(`entry line is ${line.length} characters, must be 1-160`);
+}
+const bytes = Buffer.byteLength(line, "utf8");
+if (bytes > 160) {
+  throw new Error(`entry line is ${bytes} bytes, must be at most 160`);
 }
 
 mkdirSync("/output", { recursive: true });
